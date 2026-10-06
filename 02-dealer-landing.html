@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lab 2 — Dealer landing + voice | Jarvis Workshop</title>
+    <style>
+      :root {
+        --navy: #0c1929;
+        --teal: #0d9488;
+        --teal-light: #14b8a6;
+        --slate: #64748b;
+        --white: #f8fafc;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        color: var(--navy);
+        background: var(--white);
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 2rem;
+        border-bottom: 1px solid #e2e8f0;
+      }
+      .logo {
+        font-weight: 800;
+        font-size: 1.15rem;
+        letter-spacing: -0.02em;
+      }
+      .logo span {
+        color: var(--teal);
+      }
+      nav a {
+        margin-left: 1.5rem;
+        color: var(--slate);
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+      }
+      nav a:hover {
+        color: var(--teal);
+      }
+      .hero {
+        max-width: 56rem;
+        margin: 0 auto;
+        padding: 4rem 2rem 5rem;
+        text-align: center;
+      }
+      .pill {
+        display: inline-block;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--teal);
+        background: #ccfbf1;
+        padding: 0.35rem 0.75rem;
+        border-radius: 999px;
+        margin-bottom: 1rem;
+      }
+      h1 {
+        font-size: clamp(1.75rem, 4vw, 2.5rem);
+        line-height: 1.15;
+        margin: 0 0 1rem;
+        letter-spacing: -0.03em;
+      }
+      .lead {
+        font-size: 1.1rem;
+        color: var(--slate);
+        max-width: 36rem;
+        margin: 0 auto 2rem;
+      }
+      .cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        justify-content: center;
+      }
+      .btn {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        text-decoration: none;
+        border: none;
+        cursor: default;
+      }
+      .btn-primary {
+        background: var(--teal);
+        color: white;
+      }
+      .btn-secondary {
+        background: white;
+        color: var(--navy);
+        border: 1px solid #cbd5e1;
+      }
+      .features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        max-width: 56rem;
+        margin: 0 auto;
+        padding: 0 2rem 4rem;
+      }
+      .feature {
+        padding: 1.25rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        text-align: left;
+      }
+      .feature h3 {
+        margin: 0 0 0.35rem;
+        font-size: 1rem;
+      }
+      .feature p {
+        margin: 0;
+        font-size: 0.9rem;
+        color: var(--slate);
+      }
+      .voice-hint {
+        max-width: 56rem;
+        margin: 0 auto 3rem;
+        padding: 1rem 1.25rem;
+        background: #f0fdfa;
+        border: 1px solid #99f6e4;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        color: #115e59;
+        text-align: center;
+      }
+      #config-banner {
+        display: none;
+        max-width: 56rem;
+        margin: 1rem auto;
+        padding: 1rem;
+        border-radius: 8px;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #991b1b;
+        font-size: 0.9rem;
+        text-align: center;
+      }
+      footer {
+        text-align: center;
+        padding: 2rem;
+        font-size: 0.8rem;
+        color: var(--slate);
+        border-top: 1px solid #e2e8f0;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="logo">Drive<span>Flow</span> Motors</div>
+      <nav>
+        <a href="#">Vehicles</a>
+        <a href="#">Service</a>
+        <a href="#">Contact</a>
+      </nav>
+    </header>
+
+    <div id="config-banner" role="alert">
+      Copy <strong>config.example.js</strong> to <strong>config.js</strong> and
+      add your Vapi public key and assistant ID, then refresh.
+    </div>
+
+    <section class="hero">
+      <p class="pill">Workshop demo site</p>
+      <h1>Your next car, with an AI assistant on every page</h1>
+      <p class="lead">
+        This is a static HTML landing page — the same pattern works on
+        WordPress, SharePoint, or any site that allows a script tag. Voice help
+        lives in the floating Vapi widget (bottom-right).
+      </p>
+      <div class="cta-row">
+        <span class="btn btn-primary">Browse inventory</span>
+        <span class="btn btn-secondary">Book service</span>
+      </div>
+    </section>
+
+    <p class="voice-hint">
+      👉 Click the <strong>voice button</strong> in the corner and say:
+      “I want to book a test drive for a sedan in Bangalore.”
+    </p>
+
+    <section class="features">
+      <div class="feature">
+        <h3>SUV</h3>
+        <p>Family-ready space and comfort for city and highway.</p>
+      </div>
+      <div class="feature">
+        <h3>Sedan</h3>
+        <p>Efficient daily driving with a premium feel.</p>
+      </div>
+      <div class="feature">
+        <h3>Hatchback</h3>
+        <p>Compact, easy to park, perfect for urban trips.</p>
+      </div>
+    </section>
+
+    <footer>
+      Lab 2 — Integrate Vapi on a sample dealer website · Jarvis Workshop Kit
+    </footer>
+
+    <script>
+      window.VAPI_CONFIG = window.VAPI_CONFIG || {};
+    </script>
+    <script src="config.js"></script>
+    <script>
+      (function () {
+        var cfg = window.VAPI_CONFIG || {};
+        var publicKey = (cfg.publicKey || "").trim();
+        var assistantId = (cfg.assistantId || "").trim();
+        var placeholders = /YOUR_VAPI|placeholder/i;
+
+        if (
+          !publicKey ||
+          !assistantId ||
+          placeholders.test(publicKey) ||
+          placeholders.test(assistantId)
+        ) {
+          document.getElementById("config-banner").style.display = "block";
+          return;
+        }
+
+        var buttonConfig = {
+          position: "bottom-right",
+          offset: "20px",
+          idle: {
+            color: "#0d9488",
+            type: "round",
+            title: "Ask DriveFlow AI",
+            subtitle: "Book a test drive by voice",
+          },
+          active: {
+            color: "#0f766e",
+            type: "round",
+            title: "Listening…",
+            subtitle: "Tap to end call",
+          },
+        };
+
+        (function (d, t) {
+          var g = d.createElement(t);
+          var s = d.getElementsByTagName(t)[0];
+          g.src =
+            "https://cdn.jsdelivr.net/gh/VapiAI/html-script-tag@latest/dist/assets/index.js";
+          g.defer = true;
+          g.async = true;
+          s.parentNode.insertBefore(g, s);
+          g.onload = function () {
+            if (window.vapiSDK && window.vapiSDK.run) {
+              window.vapiSDK.run({
+                apiKey: publicKey,
+                assistant: assistantId,
+                config: buttonConfig,
+              });
+            }
+          };
+        })(document, "script");
+      })();
+    </script>
+  </body>
+</html>

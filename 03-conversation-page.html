@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lab 3 — Custom voice UI | Jarvis Workshop</title>
+    <style>
+      :root {
+        --bg: #fafafa;
+        --border: #e4e4e7;
+        --text: #18181b;
+        --muted: #71717a;
+        --teal: #0d9488;
+        --red: #dc2626;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+      }
+      .layout {
+        max-width: 40rem;
+        margin: 0 auto;
+        padding: 2rem 1.25rem 3rem;
+      }
+      .badge {
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--teal);
+      }
+      h1 {
+        font-size: 1.5rem;
+        margin: 0.35rem 0 0.5rem;
+      }
+      .sub {
+        color: var(--muted);
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+      }
+      .panel {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.25rem;
+        box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+      }
+      .status-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+      }
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #d4d4d8;
+      }
+      .dot.connecting {
+        background: #f59e0b;
+        animation: pulse 1s infinite;
+      }
+      .dot.active {
+        background: #22c55e;
+        animation: pulse 1.2s infinite;
+      }
+      @keyframes pulse {
+        50% {
+          opacity: 0.5;
+        }
+      }
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+      }
+      button {
+        font: inherit;
+        font-weight: 600;
+        font-size: 0.9rem;
+        padding: 0.55rem 1.1rem;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: white;
+        cursor: pointer;
+      }
+      button:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+      button.primary {
+        background: var(--teal);
+        color: white;
+        border-color: var(--teal);
+      }
+      button.danger {
+        background: var(--red);
+        color: white;
+        border-color: var(--red);
+      }
+      .error {
+        color: var(--red);
+        font-size: 0.85rem;
+        margin-bottom: 0.75rem;
+        min-height: 1.25rem;
+      }
+      .transcript {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: #fafafa;
+        padding: 0.75rem;
+        max-height: 280px;
+        overflow-y: auto;
+        font-size: 0.9rem;
+      }
+      .transcript h2 {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+        margin: 0 0 0.5rem;
+      }
+      .line {
+        margin-bottom: 0.5rem;
+      }
+      .line .who {
+        font-weight: 700;
+      }
+      .line.user .who {
+        color: #2563eb;
+      }
+      .line.assistant .who {
+        color: var(--teal);
+      }
+      .empty {
+        color: var(--muted);
+      }
+      #config-banner {
+        display: none;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        border-radius: 8px;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #991b1b;
+        font-size: 0.9rem;
+      }
+      code {
+        font-size: 0.85em;
+        background: #f4f4f5;
+        padding: 0.1em 0.3em;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <p class="badge">Lab 3 of 3</p>
+      <h1>Custom conversation controls</h1>
+      <p class="sub">
+        Same integration pattern as a production app’s “Live Call” page: Start /
+        End, mute, and a live transcript using the Vapi Web SDK (loaded from CDN,
+        no npm install).
+      </p>
+
+      <div id="config-banner" role="alert">
+        Copy <code>config.example.js</code> to <code>config.js</code>, add your
+        keys, and open this page via <strong>Live Server</strong>.
+      </div>
+
+      <div class="panel">
+        <div class="status-row">
+          <span class="dot" id="status-dot"></span>
+          <span id="status-text">Ready</span>
+        </div>
+        <div class="actions">
+          <button type="button" class="primary" id="btn-start">Start conversation</button>
+          <button type="button" class="danger" id="btn-end" disabled>End conversation</button>
+          <button type="button" id="btn-mute" disabled>Mute</button>
+        </div>
+        <p class="error" id="error" aria-live="polite"></p>
+        <div class="transcript">
+          <h2>Conversation</h2>
+          <div id="transcript-body" class="empty">
+            Your conversation will appear here.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.VAPI_CONFIG = window.VAPI_CONFIG || {};
+    </script>
+    <script src="config.js"></script>
+    <script type="module">
+      function parseVoiceMessage(message) {
+        if (
+          message.type === "transcript" &&
+          typeof message.transcript === "string"
+        ) {
+          if (message.transcriptType === "partial") return null;
+          const role = message.role === "user" ? "user" : "assistant";
+          return { role, text: message.transcript };
+        }
+        if (
+          message.type === "conversation-update" &&
+          Array.isArray(message.messages)
+        ) {
+          const last = message.messages[message.messages.length - 1];
+          if (
+            last &&
+            last.content &&
+            (last.role === "user" || last.role === "assistant")
+          ) {
+            return { role: last.role, text: last.content };
+          }
+        }
+        return null;
+      }
+
+      const cfg = window.VAPI_CONFIG || {};
+      const publicKey = (cfg.publicKey || "").trim();
+      const assistantId = (cfg.assistantId || "").trim();
+      const placeholders = /YOUR_VAPI|placeholder/i;
+
+      const banner = document.getElementById("config-banner");
+      const statusDot = document.getElementById("status-dot");
+      const statusText = document.getElementById("status-text");
+      const btnStart = document.getElementById("btn-start");
+      const btnEnd = document.getElementById("btn-end");
+      const btnMute = document.getElementById("btn-mute");
+      const errorEl = document.getElementById("error");
+      const transcriptBody = document.getElementById("transcript-body");
+
+      let vapi = null;
+      let callState = "idle";
+      let isMuted = false;
+      let lines = [];
+
+      function setCallState(state) {
+        callState = state;
+        statusDot.className = "dot";
+        if (state === "connecting") {
+          statusDot.classList.add("connecting");
+          statusText.textContent = "Connecting…";
+        } else if (state === "active") {
+          statusDot.classList.add("active");
+          statusText.textContent = "Connected — speak now";
+        } else if (state === "ended") {
+          statusText.textContent = "Conversation ended";
+        } else {
+          statusText.textContent = "Ready";
+        }
+        btnStart.disabled = state === "connecting" || state === "active";
+        btnEnd.disabled = state !== "active" && state !== "connecting";
+        btnMute.disabled = state !== "active";
+      }
+
+      function renderTranscript() {
+        if (lines.length === 0) {
+          transcriptBody.className = "empty";
+          transcriptBody.textContent = "Your conversation will appear here.";
+          return;
+        }
+        transcriptBody.className = "";
+        transcriptBody.innerHTML = lines
+          .map(function (line) {
+            const label = line.role === "user" ? "You" : "Assistant";
+            return (
+              '<div class="line ' +
+              line.role +
+              '"><span class="who">' +
+              label +
+              ":</span> " +
+              escapeHtml(line.text) +
+              "</div>"
+            );
+          })
+          .join("");
+        transcriptBody.scrollTop = transcriptBody.scrollHeight;
+      }
+
+      function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      if (
+        !publicKey ||
+        !assistantId ||
+        placeholders.test(publicKey) ||
+        placeholders.test(assistantId)
+      ) {
+        banner.style.display = "block";
+        btnStart.disabled = true;
+      } else {
+        const VapiModule = await import(
+          "https://esm.sh/@vapi-ai/web@2.5.2"
+        );
+        const Vapi = VapiModule.default;
+        vapi = new Vapi(publicKey);
+
+        vapi.on("call-start", function () {
+          setCallState("active");
+          errorEl.textContent = "";
+        });
+        vapi.on("call-end", function () {
+          setCallState("ended");
+        });
+        vapi.on("call-start-failed", function () {
+          setCallState("idle");
+          errorEl.textContent = "Could not start the call. Check keys and assistant ID.";
+        });
+        vapi.on("error", function () {
+          setCallState("idle");
+          errorEl.textContent = "Connection error. Try again.";
+        });
+        vapi.on("message", function (message) {
+          const line = parseVoiceMessage(message);
+          if (line) {
+            lines.push(line);
+            renderTranscript();
+          }
+        });
+
+        btnStart.addEventListener("click", async function () {
+          errorEl.textContent = "";
+          lines = [];
+          renderTranscript();
+          setCallState("connecting");
+          try {
+            await vapi.start(assistantId);
+          } catch (e) {
+            setCallState("idle");
+            errorEl.textContent = "Could not start the call.";
+          }
+        });
+
+        btnEnd.addEventListener("click", async function () {
+          try {
+            await vapi.stop();
+          } catch (e) {
+            /* ignore */
+          }
+          setCallState("ended");
+        });
+
+        btnMute.addEventListener("click", function () {
+          isMuted = !isMuted;
+          vapi.setMuted(isMuted);
+          btnMute.textContent = isMuted ? "Unmute" : "Mute";
+        });
+      }
+
+      setCallState("idle");
+    </script>
+  </body>
+</html>

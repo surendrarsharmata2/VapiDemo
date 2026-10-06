@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lab 1 — Vapi Voice Widget | Jarvis Workshop</title>
+    <style>
+      :root {
+        --bg: #0f172a;
+        --card: #1e293b;
+        --text: #f1f5f9;
+        --muted: #94a3b8;
+        --accent: #14b8a6;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        background: linear-gradient(160deg, #0f172a 0%, #134e4a 100%);
+        color: var(--text);
+        line-height: 1.5;
+      }
+      .wrap {
+        max-width: 42rem;
+        margin: 0 auto;
+        padding: 2.5rem 1.5rem 4rem;
+      }
+      .badge {
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--accent);
+      }
+      h1 {
+        font-size: 1.75rem;
+        margin: 0.5rem 0 0.75rem;
+      }
+      p {
+        color: var(--muted);
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid #334155;
+        border-radius: 12px;
+        padding: 1.25rem 1.5rem;
+        margin-top: 1.5rem;
+      }
+      .card h2 {
+        font-size: 1rem;
+        margin: 0 0 0.75rem;
+      }
+      ol {
+        margin: 0;
+        padding-left: 1.25rem;
+        color: var(--muted);
+      }
+      ol li {
+        margin-bottom: 0.35rem;
+      }
+      .warn {
+        margin-top: 1.25rem;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        background: #422006;
+        border: 1px solid #b45309;
+        color: #fde68a;
+        font-size: 0.9rem;
+      }
+      .warn strong {
+        color: #fef3c7;
+      }
+      #config-banner {
+        display: none;
+        margin-top: 1rem;
+        padding: 1rem;
+        border-radius: 8px;
+        background: #450a0a;
+        border: 1px solid #b91c1c;
+        color: #fecaca;
+        font-size: 0.9rem;
+      }
+      code {
+        font-size: 0.85em;
+        background: #0f172a;
+        padding: 0.1em 0.35em;
+        border-radius: 4px;
+      }
+      a {
+        color: var(--accent);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <p class="badge">Lab 1 of 3</p>
+      <h1>Floating voice widget</h1>
+      <p>
+        This page loads the official Vapi HTML widget from a CDN. Look for the
+        talk button (usually bottom-right), click it, allow your microphone, and
+        start a conversation.
+      </p>
+
+      <div id="config-banner" role="alert">
+        <strong>Configuration needed.</strong> Copy
+        <code>config.example.js</code> to <code>config.js</code>, add your
+        Vapi public key and assistant ID, then refresh this page.
+      </div>
+
+      <div class="card">
+        <h2>Checklist</h2>
+        <ol>
+          <li>Open this file with <strong>Live Server</strong> (not double-click).</li>
+          <li>Ensure <code>config.js</code> exists next to this HTML file.</li>
+          <li>Try: “I’d like to book a test drive for an SUV in Mumbai.”</li>
+        </ol>
+      </div>
+
+      <p class="warn">
+        <strong>Trainer note:</strong> Microphone access requires
+        <code>http://localhost</code> or HTTPS. Use Live Server or host this
+        folder on any static file server.
+      </p>
+    </div>
+
+    <script>
+      window.VAPI_CONFIG = window.VAPI_CONFIG || {};
+    </script>
+    <script src="config.js"></script>
+    <script>
+      (function () {
+        var cfg = window.VAPI_CONFIG || {};
+        var publicKey = (cfg.publicKey || "").trim();
+        var assistantId = (cfg.assistantId || "").trim();
+        var placeholders = /YOUR_VAPI|placeholder/i;
+
+        if (
+          !publicKey ||
+          !assistantId ||
+          placeholders.test(publicKey) ||
+          placeholders.test(assistantId)
+        ) {
+          document.getElementById("config-banner").style.display = "block";
+          return;
+        }
+
+        var buttonConfig = {
+          position: "bottom-right",
+          offset: "24px",
+          width: "60px",
+          height: "60px",
+          idle: {
+            color: "#14b8a6",
+            type: "round",
+            title: "Talk to DriveFlow AI",
+            subtitle: "Powered by Vapi",
+          },
+          active: {
+            color: "#0d9488",
+            type: "round",
+            title: "Call in progress…",
+            subtitle: "Click to end",
+          },
+        };
+
+        (function (d, t) {
+          var g = d.createElement(t);
+          var s = d.getElementsByTagName(t)[0];
+          g.src =
+            "https://cdn.jsdelivr.net/gh/VapiAI/html-script-tag@latest/dist/assets/index.js";
+          g.defer = true;
+          g.async = true;
+          s.parentNode.insertBefore(g, s);
+          g.onload = function () {
+            if (window.vapiSDK && window.vapiSDK.run) {
+              window.vapiSDK.run({
+                apiKey: publicKey,
+                assistant: assistantId,
+                config: buttonConfig,
+              });
+            }
+          };
+        })(document, "script");
+      })();
+    </script>
+  </body>
+</html>
